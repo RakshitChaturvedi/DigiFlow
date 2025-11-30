@@ -3,7 +3,10 @@ __pycache__/
 .env
 .env.*
 /backend/.venv
+/backend/.venv/
 /backend/venv
+backend/.env
+backend/.env.*
 /backend/.mypy_cache
 /backend/.pytest_cache
 /backend/.ruff_cache
