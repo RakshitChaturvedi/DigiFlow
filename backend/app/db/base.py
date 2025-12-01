@@ -13,3 +13,7 @@ from app.models.operation_instance import OperationInstance
 from app.models.schedule_version import ScheduleVersion
 from app.models.scheduled_task import ScheduledTask
 from app.models.job_log import JobLog
+from app.models.setup_matrix import SetupMatrix
+from app.models.calendar_shift import CalendarShift
+from app.models.import_record import ImportRecord
+from app.models.plugin_config import PluginConfig
