@@ -10,3 +10,6 @@ from app.models.routing import Routing
 from app.models.operation import Operation
 from app.models.order import Order
 from app.models.operation_instance import OperationInstance
+from app.models.schedule_version import ScheduleVersion
+from app.models.scheduled_task import ScheduledTask
+from app.models.job_log import JobLog
