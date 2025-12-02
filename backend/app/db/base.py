@@ -17,3 +17,4 @@ from app.models.setup_matrix import SetupMatrix
 from app.models.calendar_shift import CalendarShift
 from app.models.import_record import ImportRecord
 from app.models.plugin_config import PluginConfig
+from app.models.refresh_token import RefreshToken
