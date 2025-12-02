@@ -1,0 +1,79 @@
+### LOGIN
+POST http://localhost:8000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "device_id": "chrome_1"
+}
+
+### COPY ACCESS + REFRESH
+# Copy access_token to {{access_token}} and refresh_token to {{refresh_token}}.
+
+@access_token = {{access_token}}
+@refresh_token = {{refresh_token}}
+
+
+### VERIFY ACCESS TOKEN
+GET http://localhost:8000/api/v1/auth/verify?token={{access_token}}
+X-Request-ID: test-verify-1
+
+
+### REQUEST-ID MIDDLEWARE TEST
+GET http://localhost:8000/api/v1/auth/verify?token={{access_token}}
+X-Request-ID: custom-request-id-123
+
+
+### REFRESH TOKEN (ROTATION)
+POST http://localhost:8000/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refresh_token}}",
+  "device_id": "chrome_1"
+}
+
+### COPY NEW REFRESH TOKEN
+@new_refresh_token = {{new_refresh_token}}
+
+
+### OLD REFRESH TOKEN SHOULD NOW FAIL (revoked)
+POST http://localhost:8000/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refresh_token}}",
+  "device_id": "dev01"
+}
+
+
+### LOGOUT USING NEW  REFRESH TOKEN
+POST http://localhost:8000/api/v1/auth/logout
+Content-Type: application/json
+
+{
+  "refresh_token": "{{new_refresh_token}}"
+}
+
+
+### LOGOUT TOKEN SHOULD NOW BE REVOKED
+POST http://localhost:8000/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "{{new_refresh_token}}",
+  "device_id": "dev01"
+}
+
+
+### RBAC TEST (requires tenant_admin)
+GET http://localhost:8000/api/v1/test/admin-only
+Authorization: Bearer {{access_token}}
+X-Request-ID: rbac-test-1
+
+
+### RLS TENANT MIDDLEWARE TEST
+GET http://localhost:8000/api/v1/test/tenant-id
+Authorization: Bearer {{access_token}}
+X-Request-ID: rls-test-1

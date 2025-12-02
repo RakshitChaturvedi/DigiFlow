@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+import base64
 
 
 class Settings(BaseSettings):
@@ -7,8 +8,10 @@ class Settings(BaseSettings):
 
     # Security
     SECRET_KEY: str
-    JWT_PRIVATE_KEY: str
-    JWT_PUBLIC_KEY: str
+    JWT_PRIVATE_KEY_B64: str
+    JWT_PUBLIC_KEY_B64: str
+    JWT_KEY_ID: str | None = None
+
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_ROTATION: bool = True
 
@@ -17,6 +20,14 @@ class Settings(BaseSettings):
 
     # Tenant Defaults
     TENANT_DEFAULT_TIMEZONE: str = "UTC"
+
+    @property
+    def JWT_PRIVATE_KEY(self) -> str:
+        return base64.b64decode(self.JWT_PRIVATE_KEY_B64).decode()
+
+    @property
+    def JWT_PUBLIC_KEY(self) -> str:
+        return base64.b64decode(self.JWT_PUBLIC_KEY_B64).decode()
 
     class Config:
         env_file = ".env"

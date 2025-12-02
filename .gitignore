@@ -12,3 +12,13 @@ backend/.env.*
 /backend/.ruff_cache
 .idea/
 .vscode/
+
+# security
+app/keys/
+*.pem
+*.key
+*.pub
+*.der
+*.crt
+backend/app/keys/
+
