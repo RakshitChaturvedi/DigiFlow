@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple, Dict
-from jose import jwt
-from jose.exceptions import JWTError, ExpiredSignatureError
+import jwt
+from jwt.exceptions import PyJWTError, ExpiredSignatureError, InvalidTokenError
 import uuid
 
 from app.core.config import settings
@@ -62,6 +62,7 @@ def create_access_token(
     }
 
     headers = _get_kid_header()
+
     token = jwt.encode(
         payload, settings.JWT_PRIVATE_KEY, algorithm=ALGORITHM, headers=headers
     )
@@ -97,6 +98,7 @@ def create_refresh_token(
         payload["role"] = role  # not authoritative.
 
     headers = _get_kid_header()
+
     token = jwt.encode(
         payload, settings.JWT_PRIVATE_KEY, algorithm=ALGORITHM, headers=headers
     )
@@ -136,11 +138,14 @@ def decode_token(token: str, allow_expired: bool = False) -> Dict:
                     token,
                     pubkey,
                     algorithms=[ALGORITHM],
-                    options={"verify_exp": False},
+                    options={"verify_exp": False},  # to allow expired
                 )
                 return payload
             except Exception:
                 raise TokenDecodeError("INVALID_TOKEN")
         raise TokenDecodeError("TOKEN_EXPIRED")
-    except JWTError:
+
+    except InvalidTokenError:
+        raise TokenDecodeError("INVALID_TOKEN")
+    except PyJWTError:
         raise TokenDecodeError("INVALID_TOKEN")

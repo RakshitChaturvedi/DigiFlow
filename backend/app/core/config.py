@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 import base64
 
 
@@ -29,9 +29,7 @@ class Settings(BaseSettings):
     def JWT_PUBLIC_KEY(self) -> str:
         return base64.b64decode(self.JWT_PUBLIC_KEY_B64).decode()
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
 settings = Settings()
