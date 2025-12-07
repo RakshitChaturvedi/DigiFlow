@@ -7,7 +7,7 @@ from app.db import base  # noqa: F401
 from app.core.logging import setup_logging
 from app.core.error_handlers import register_error_handlers
 from app.core.middleware.request_id_middleware import RequestIDMiddleware
-from app.core.middleware.tenant_middleware import TenantRLSMiddleware
+from app.core.middleware.tenant_middleware import TenantContextMiddleware
 from app.api.v1.routers.auth import router as auth_router
 from app.api.v1.routers.test import router as test_router
 
@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan, title="DigiFlow Backend", version="0.1.0")
 
 app.add_middleware(RequestIDMiddleware)
-app.add_middleware(TenantRLSMiddleware)
+app.add_middleware(TenantContextMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
