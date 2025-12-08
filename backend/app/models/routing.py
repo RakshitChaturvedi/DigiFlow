@@ -1,4 +1,5 @@
-from sqlalchemy import Column, BigInteger, String, Integer, JSON, ForeignKey
+from sqlalchemy import Column, BigInteger, String, Integer, JSON, ForeignKey, DateTime
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
@@ -23,6 +24,15 @@ class Routing(Base):
     name = Column(String, nullable=True)
     version = Column(Integer, nullable=False, server_default="1")
     meta = Column(JSON, nullable=True)
+    created_at = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
 
     tenant = relationship("Tenant")
     product = relationship("Product")

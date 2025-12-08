@@ -17,7 +17,7 @@ class OrderCreate(OrderBase):
 
     product_id: int
 
-    quantity: Annotated[int, Field(gt=0)]
+    qty: Annotated[int, Field(gt=0)]
 
     due_date: date
 
@@ -32,7 +32,7 @@ class OrderCreate(OrderBase):
 class OrderUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    quantity: Optional[Annotated[int, Field(gt=0)]] = None
+    qty: Optional[Annotated[int, Field(gt=0)]] = None
 
     due_date: Optional[date] = None
     priority: Optional[int] = None
@@ -55,6 +55,7 @@ class OrderResponse(OrderBase):
     product_id: int
     due_date: date
     status: str
+    qty: int
 
     external_id: Optional[
         Annotated[

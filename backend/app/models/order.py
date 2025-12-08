@@ -8,6 +8,7 @@ from sqlalchemy import (
     CheckConstraint,
     Integer,
 )
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
@@ -32,6 +33,15 @@ class Order(Base):
     priority = Column(Integer, nullable=True, server_default="0")
     status = Column(String, nullable=False)
     meta = Column(JSON, nullable=True)
+    created_at = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
 
     tenant = relationship("Tenant")
     product = relationship("Product")

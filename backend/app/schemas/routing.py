@@ -11,9 +11,7 @@ class RoutingBase(BaseModel):
         str, StringConstraints(min_length=3, max_length=255, strip_whitespace=True)
     ]
 
-    version: Annotated[
-        str, StringConstraints(min_length=1, max_length=64, strip_whitespace=True)
-    ]
+    version: Annotated[int, Field(gt=0)]
 
     meta: Optional[Dict[str, Any]] = None
 
@@ -33,11 +31,7 @@ class RoutingUpdate(BaseModel):
         ]
     ] = None
 
-    version: Optional[
-        Annotated[
-            str, StringConstraints(min_length=1, max_length=64, strip_whitespace=True)
-        ]
-    ] = None
+    version: Optional[Annotated[int, Field(gt=0)]] = None
 
     meta: Optional[Dict[str, Any]] = None
 
