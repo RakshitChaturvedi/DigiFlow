@@ -1,6 +1,15 @@
+from enum import Enum
 from pydantic import BaseModel, ConfigDict, StringConstraints, Field
 from typing import Annotated, Optional, Dict, Any, List
 from datetime import date, datetime
+
+
+class OrderStatus(str, Enum):
+    PENDING = "pending"
+    SCHEDULED = "scheduled"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
 
 
 # base class
@@ -36,6 +45,8 @@ class OrderUpdate(BaseModel):
 
     due_date: Optional[date] = None
     priority: Optional[int] = None
+
+    status: Optional[OrderStatus] = None
 
     external_id: Optional[
         Annotated[
