@@ -1,10 +1,12 @@
+from typing import cast, Dict, Any
+
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.status import (
     HTTP_400_BAD_REQUEST,
-    HTTP_404_NOT_FOUND,
     HTTP_401_UNAUTHORIZED,
     HTTP_403_FORBIDDEN,
+    HTTP_404_NOT_FOUND,
     HTTP_409_CONFLICT,
     HTTP_429_TOO_MANY_REQUESTS,
     HTTP_500_INTERNAL_SERVER_ERROR,
@@ -19,12 +21,22 @@ def register_error_handlers(app):
 
     @app.exception_handler(DigiFlowException)
     async def digiflow_exception_handler(request: Request, exc: DigiFlowException):
+
+        if exc.code == ErrorCode.IDEMPOTENCY_REPLAY:
+            cached_data = cast(Dict[str, Any], exc.details)
+
+            return JSONResponse(
+                status_code=cached_data["status"],
+                content=cached_data["body"],
+                headers=cached_data.get("headers") or {},
+            )
+
         resp = ErrorResponse(
             error=ErrorInfo(
                 code=exc.code,
                 message=exc.message,
                 details=exc.details,
-                request_id=request.state.request_id,
+                request_id=getattr(request.state, "request_id", None),
             )
         )
 
@@ -55,7 +67,7 @@ def register_error_handlers(app):
                 ),
                 message=str(exc.detail),
                 details=None,
-                request_id=request.state.request_id,
+                request_id=getattr(request.state, "request_id", None),
             )
         )
         return JSONResponse(status_code=exc.status_code, content=resp.model_dump())
@@ -67,7 +79,7 @@ def register_error_handlers(app):
                 code=ErrorCode.SERVER_ERROR,
                 message="Internal server error.",
                 details=[ErrorDetail(reason=str(exc))],
-                request_id=request.state.request_id,
+                request_id=getattr(request.state, "request_id", None),
             )
         )
         return JSONResponse(status_code=500, content=resp.model_dump())
