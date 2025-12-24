@@ -88,6 +88,11 @@ def update_user_api(
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(validate_tenant_access),
 ):
+    if not payload.model_dump(exclude_unset=True):
+        raise DigiFlowException(
+            code=ErrorCode.INVALID_INPUT, message="At least one field must be updated"
+        )
+
     return update_user(
         db=db,
         tenant_id=tenant_id,

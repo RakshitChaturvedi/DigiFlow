@@ -8,8 +8,15 @@ from app.core.logging import setup_logging
 from app.core.error_handlers import register_error_handlers
 from app.core.middleware.request_id_middleware import RequestIDMiddleware
 from app.core.middleware.tenant_middleware import TenantContextMiddleware
-from app.api.v1.routers.auth import router as auth_router
-from app.api.v1.routers.test import router as test_router
+from app.api.v1.routers import (
+    auth,
+    test,
+    users,
+    products,
+    machines,
+    routings,
+    orders,
+)
 
 
 @asynccontextmanager
@@ -37,8 +44,13 @@ app.add_middleware(
 )
 
 register_error_handlers(app)
-app.include_router(auth_router, prefix="/api/v1")
-app.include_router(test_router, prefix="/api/v1")
+app.include_router(auth.router, prefix="/api/v1")
+app.include_router(test.router, prefix="/api/v1")
+app.include_router(users.router, prefix="/api/v1")
+app.include_router(products.router, prefix="/api/v1")
+app.include_router(machines.router, prefix="/api/v1")
+app.include_router(routings.router, prefix="/api/v1")
+app.include_router(orders.router, prefix="/api/v1")
 
 
 @app.get("/health")
