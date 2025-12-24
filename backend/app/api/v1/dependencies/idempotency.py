@@ -49,4 +49,6 @@ async def require_idempotency(
     return {
         "idempotency_key": idempotency_key,
         "request_hash": request_hash,
+        "method": request.method,
+        "path": request.url.path,
     }

@@ -1,10 +1,13 @@
 import hashlib
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Type
+from pydantic import BaseModel
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
+from app.schemas.current_user import CurrentUser
 from app.core.errors import DigiFlowException, ErrorCode
 from app.models.idempotency_record import IdempotencyRecord
 
@@ -91,3 +94,30 @@ def save_idempotency_response(
             str(e),
             exc_info=True,
         )
+
+
+def commit_idempotency(
+    *,
+    db: Session,
+    current_user: CurrentUser,
+    idempotency_ctx: dict,
+    response_data: Any,
+    status_code: int = 200,
+    response_model: Optional[Type[BaseModel]] = None
+):
+    if response_model:
+        json_body = response_model.model_validate(response_data).model_dump(mode="json")
+    else:
+        json_body = jsonable_encoder(response_data)
+
+    save_idempotency_response(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        user_id=current_user.user_id,
+        method=idempotency_ctx["method"],
+        path=idempotency_ctx["path"],
+        idempotency_key=idempotency_ctx["idempotency_key"],
+        request_hash=idempotency_ctx["request_hash"],
+        status_code=status_code,
+        response_body=json_body,
+    )
