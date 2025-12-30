@@ -22,6 +22,8 @@ from app.schemas.current_user import CurrentUser
 from app.api.v1.dependencies.get_current_user import get_current_user
 from app.core.rbac import require_role
 from app.core.errors import DigiFlowException, ErrorCode
+from app.api.v1.dependencies.idempotency import require_idempotency
+from app.core.idempotency import commit_idempotency
 
 
 router = APIRouter(prefix="/tenants/{tenant_id}/machines", tags=["machines"])
@@ -47,8 +49,20 @@ def create_machine_api(
     tenant_id: int = Path(...),
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(validate_tenant_access),
+    idempotency_ctx: dict = Depends(require_idempotency),
 ):
-    return create_machine(db, tenant_id, payload)
+    machine = create_machine(db, tenant_id, payload)
+
+    commit_idempotency(
+        db=db,
+        current_user=current_user,
+        idempotency_ctx=idempotency_ctx,
+        response_data=machine,
+        status_code=status.HTTP_201_CREATED,
+        response_model=MachineResponse,
+    )
+
+    return machine
 
 
 # get single
@@ -92,19 +106,31 @@ def update_machine_api(
     if_unmodified_since: Optional[datetime] = Header(None, alias="If-Unmodified-Since"),
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(validate_tenant_access),
+    idempotency_ctx: dict = Depends(require_idempotency),
 ):
     if not payload.model_dump(exclude_unset=True):
         raise DigiFlowException(
             code=ErrorCode.INVALID_INPUT, message="At least one field must be updated"
         )
 
-    return update_machine(
+    machine = update_machine(
         db=db,
         tenant_id=tenant_id,
         machine_id=machine_id,
         data=payload,
         if_unmodified_since=if_unmodified_since,
     )
+
+    commit_idempotency(
+        db=db,
+        current_user=current_user,
+        idempotency_ctx=idempotency_ctx,
+        response_data=machine,
+        status_code=status.HTTP_200_OK,
+        response_model=MachineResponse,
+    )
+
+    return machine
 
 
 # delete
